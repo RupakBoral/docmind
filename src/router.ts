@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { fileRouter } from "./router/file";
+import { fileRouter } from "./router/ingest";
 import { retrievalRouter } from "./router/query";
 
 

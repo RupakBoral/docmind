@@ -23,7 +23,7 @@ fileRouter.post('/ingest', upload.single("file"), async (req: Request, res: Resp
         const embeddings = await embedObject.embeddingChunks(chunks);
         await ingest(chunks, embeddings);
 
-        res.status(200).json({ success: true, message: "Success" });
+        res.status(200).json({ success: true, message: "Document ingested successfully" });
     } catch (error) {
         console.error("Error..", error);
         res.status(500).json({ success: false, message: "Failed, Please try again," });
