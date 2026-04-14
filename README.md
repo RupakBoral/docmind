@@ -1,6 +1,6 @@
 # docmind 🧠📖
 
-> A Query Transformation style RAG (Retrieval Augmented Generation) system — upload PDFs and ask questions about them using local embeddings and Groq for Free.
+> A Query Transformation style RAG (Retrieval Augmented Generation) system — upload PDFs and ask questions about them using local embeddings(nomic-embed-text) and Groq for Free.
 
 ---
 
@@ -42,7 +42,6 @@ Question → rewrite for better retrieval → embed → similarity search → to
 | File parsing | pdf-parse |
 | File upload | Multer |
 | Containerization | Docker + Docker Compose |
-| Process Manager | PM2 |
 | Logging | Morgan |
 
 ---
@@ -89,6 +88,10 @@ Content-Type: multipart/form-data
 
 file: <PDF file>
 ```
+
+``
+Note: The PDF name/ key should be 'file' only.
+``
 
 **Response:**
 ```json
@@ -152,6 +155,7 @@ GROQ_API_KEY=your_groq_api_key
 
 ### Prerequisites
 - Docker + Docker Compose
+- Ollama (https://docs.ollama.com/linux)
 - Groq API
 
 ### Start
@@ -165,20 +169,28 @@ cd docmind
 cp .env.example .env
 # add your GROQ_API_KEY to .env
 
-# start all services
-docker-compose up --build
+# start psql services
+docker-compose up -d --build
+
+# run the server
+npm run dev
 ```
 
-### Pull the embedding model (first time only)
+### Pull the embedding model (274 MB model, first time only)
 
 ```bash
-docker exec -it docmind_ollama_1 ollama pull nomic-embed-text
+ollama pull nomic-embed-text
 ```
 
 ### Stop
 
 ```bash
+# psql
 docker-compose down
+
+# ollama
+sudo systemctl stop ollama 
+# Linux
 ```
 
 ---

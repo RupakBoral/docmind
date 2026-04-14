@@ -1,6 +1,6 @@
 import { prisma } from "../config/db";
 
-export const ingest = async (chunks: string[], embeddings: number[][]) => {
+export const ingest = async (chunks: string[], embeddings: number[][]): Promise<string> => {
     try {
         const doc = await prisma.document.create({
             data: {
@@ -28,6 +28,7 @@ export const ingest = async (chunks: string[], embeddings: number[][]) => {
         );
 
         console.info(`Ingested ${chunks.length} chunks for doc ${doc_id}`);
+        return doc_id || '';
 
     } catch (error) {
         throw new Error(`DB Error: ${error}`);

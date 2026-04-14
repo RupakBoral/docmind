@@ -8,6 +8,10 @@ export interface RetrieveChunks {
 
 export const retrieve = async (vector_string: string, doc_id: string | null): Promise<Array<RetrieveChunks>> => {
     try {
+        if (!vector_string || vector_string.length === 0) {
+            throw new Error("Invalid vector input");
+        }
+
         const chunks: Array<RetrieveChunks> = doc_id
             ? await prisma.$queryRaw`
                 SELECT content, page,
@@ -24,6 +28,7 @@ export const retrieve = async (vector_string: string, doc_id: string | null): Pr
                 ORDER BY similarity DESC
                 LIMIT 5
             `;
+
         return chunks;
     } catch (error) {
         throw new Error(`DB Error: ${error}`);
