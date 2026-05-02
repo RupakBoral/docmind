@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  extensions = [vector]
+}
+
+model user {
+  id String @id @default(uuid()) @unique
+  first_name String
+  last_name String
+  email String @unique
+  password String
+  account_id String
+  account account @relation(fields: [account_id], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model account {
+  id String @id @default(uuid()) @unique
+  key String @unique
+  users user[]
+  documents document[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
+model document {
+  id String @id @default(uuid()) @unique
+  name String
+  size Int?
+  pages Int?
+  chunks chunk[]
+  account_id String?
+  account account? @relation(fields: [account_id], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model chunk {
+  id String @id @default(uuid()) @unique
+  document_id String
+  document document @relation(fields: [document_id], references: [id], onDelete: Cascade)
+  content String
+  page Int?
+  embedding Unsupported("vector(768)")
+  createdAt DateTime @default(now()) 
+}

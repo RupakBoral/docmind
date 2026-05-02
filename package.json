@@ -1,0 +1,56 @@
+{
+  "name": "docmind",
+  "version": "1.0.0",
+  "description": "Exploring RAG systems",
+  "keywords": [
+    "docmind"
+  ],
+  "homepage": "https://github.com/RupakBoral/docmind#readme",
+  "bugs": {
+    "url": "https://github.com/RupakBoral/docmind/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RupakBoral/docmind.git"
+  },
+  "license": "ISC",
+  "author": "RupakBoral",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.49.0",
+    "@prisma/adapter-pg": "^7.6.0",
+    "@prisma/client": "^7.6.0",
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.2.1",
+    "groq-sdk": "^1.1.2",
+    "install": "^0.13.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.10.1",
+    "multer": "^2.1.1",
+    "npm": "^11.13.0",
+    "ollama": "^0.6.3",
+    "pdf-parse": "^2.4.5"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^25.5.0",
+    "@types/pdf-parse": "^1.1.5",
+    "dotenv": "^17.4.2",
+    "nodemon": "^3.1.14",
+    "prisma": "^7.6.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+*.log
+prisma/migrations
+docker-compose.yml
+.dockerignore
+.gitignore
+README.md
