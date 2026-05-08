@@ -1,9 +1,10 @@
 {
   "name": "docmind",
   "version": "1.0.0",
-  "description": "Exploring RAG systems",
+  "description": "Upload PDFs and ask questions using local embeddings and Groq for Free.",
   "keywords": [
-    "docmind"
+    "docmind",
+    "RAG"
   ],
   "homepage": "https://github.com/RupakBoral/docmind#readme",
   "bugs": {
@@ -30,11 +31,9 @@
     "cookie-parser": "^1.4.7",
     "express": "^5.2.1",
     "groq-sdk": "^1.1.2",
-    "install": "^0.13.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
     "multer": "^2.1.1",
-    "npm": "^11.13.0",
     "ollama": "^0.6.3",
     "pdf-parse": "^2.4.5"
   },
