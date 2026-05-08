@@ -1,7 +1,8 @@
 import { Ollama } from 'ollama';
+import { CONFIG } from '../config/constants';
 
 const client = new Ollama({
-  host: 'http://ollama:11434'
+  host: CONFIG.OLLAMA.HOST
 });
 
 export class EmbedChunk {

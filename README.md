@@ -175,7 +175,7 @@ cp .env.example .env
 docker-compose up -d --build
 
 # Apply Prisma schema to Database (first time only)
-docker exec -it docmind-app-1 npx prisma db push
+docker exec -it docmind-app npx prisma db push
 
 # Pull the embedding model (274 MB model, first time only)
 

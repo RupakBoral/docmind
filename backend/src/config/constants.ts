@@ -9,5 +9,8 @@ export const CONFIG = {
     JWT: {
         SECRET: process.env.JWT_SECRET || 'fallback_secret',
         EXPIRY: '24h'
+    },
+    OLLAMA: {
+        HOST: 'http://ollama:11434',
     }
 }
