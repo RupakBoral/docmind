@@ -23,9 +23,13 @@ retrievalRouter.post('/account/:account_id/query', async (req: Request, res: Res
 
         const vector_string = `[${questionEmbedding.join(',')}]`;
         const retrieved_chunks = await retrieve(account_id, vector_string, doc_id);
-        const data = await llmObject.generateResponse(prompt, retrieved_chunks);
+        const answer = await llmObject.generateResponse(prompt, retrieved_chunks);
 
-        res.status(200).json({ success: true, message: "Generated the response", data: data });
+        res.status(200).json({
+            success: true,
+            message: "Generated the response",
+            data: { answer, citations: retrieved_chunks }
+        });
     } catch (error) {
         console.error("Error..", error);
         res.status(500).json({ success: false, message: "Failed, Please try again,", error: error });

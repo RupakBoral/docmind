@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { AuthLayout } from './AuthLayout';
 import { Btn } from '../Primitives';
 import { IDots } from '../Icons';
+import { login } from '../../api';
+import type { User } from '../../api';
 
 interface LoginScreenProps {
   theme: string;
   onToggleTheme: () => void;
-  onLogin: () => void;
+  onLogin: (user: User) => void;
   onSwitch: () => void;
 }
 
@@ -39,20 +41,27 @@ function Field({ label, type = 'text', value, onChange, error, autoFocus, placeh
 }
 
 export function LoginScreen({ theme, onToggleTheme, onLogin, onSwitch }: LoginScreenProps) {
-  const [email, setEmail] = useState('alex@docmind.app');
-  const [pw, setPw] = useState('••••••••');
+  const [email, setEmail] = useState('');
+  const [pw, setPw] = useState('');
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
-  const submit = (e?: React.FormEvent) => {
+  const submit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     const errors: Record<string, string> = {};
     if (!email.includes('@')) errors.email = 'Enter a valid email';
-    if (pw.length < 4) errors.pw = 'Password must be at least 8 characters';
+    if (pw.length < 4) errors.pw = 'Password required';
     setErrs(errors);
     if (Object.keys(errors).length) return;
     setLoading(true);
-    setTimeout(() => { setLoading(false); onLogin(); }, 700);
+    try {
+      const { user } = await login(email, pw);
+      onLogin(user);
+    } catch (err: any) {
+      setErrs({ form: err.message || 'Invalid email or password' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,13 +77,13 @@ export function LoginScreen({ theme, onToggleTheme, onLogin, onSwitch }: LoginSc
         <Field label="Email" type="email" value={email} onChange={setEmail} error={errs.email} autoFocus placeholder="you@company.com"/>
         <Field label="Password" type="password" value={pw} onChange={setPw} error={errs.pw} placeholder="••••••••"/>
 
-        <div style={{ marginTop: 8, marginBottom: 24, textAlign: 'right' }}>
-          <a style={{ fontSize: 12.5, color: 'var(--ink-3)', textDecoration: 'none' }} href="#">
-            Forgot password?
-          </a>
-        </div>
+        {errs.form && (
+          <div style={{ fontSize: 13, color: 'var(--danger)', marginBottom: 12, padding: '8px 12px', background: 'color-mix(in oklch, var(--danger) 10%, var(--bg))', borderRadius: 8 }}>
+            {errs.form}
+          </div>
+        )}
 
-        <Btn type="submit" size="lg" style={{ width: '100%', justifyContent: 'center' }} disabled={loading}>
+        <Btn type="submit" size="lg" style={{ width: '100%', justifyContent: 'center', marginTop: 4 }} disabled={loading}>
           {loading ? <><IDots size={16}/> Signing in…</> : 'Sign in'}
         </Btn>
 

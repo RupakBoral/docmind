@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Doc, RecentQuery } from '../../data/sample';
-import { ILogo, IFile, IMessage, ISettings } from '../Icons';
+import { ILogo, IFile, IMessage, ILogout } from '../Icons';
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -37,10 +37,18 @@ interface SidebarProps {
   theme?: string;
   onToggleTheme?: () => void;
   onPickDoc: (id: string) => void;
+  userName?: string;
+  userEmail?: string;
+  onLogout?: () => void;
 }
 
-export function Sidebar({ active, onNav, sidebarOn, recents, docs, onPickDoc }: SidebarProps) {
+export function Sidebar({ active, onNav, sidebarOn, recents, docs, onPickDoc, userName, userEmail, onLogout }: SidebarProps) {
   if (!sidebarOn) return null;
+
+  const initials = userName
+    ? userName.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+    : 'U';
+
   return (
     <aside style={{
       width: 260, flexShrink: 0, height: '100%',
@@ -62,6 +70,9 @@ export function Sidebar({ active, onNav, sidebarOn, recents, docs, onPickDoc }: 
         Pinned
       </div>
       <div style={{ padding: '0 12px', display: 'flex', flexDirection: 'column', gap: 1 }}>
+        {docs.filter(d => d.pinned).length === 0 && (
+          <div style={{ fontSize: 12.5, color: 'var(--ink-5)', padding: '4px 8px' }}>No pinned documents</div>
+        )}
         {docs.filter(d => d.pinned).map(d => (
           <button key={d.id} onClick={() => onPickDoc(d.id)} style={{
             display: 'flex', alignItems: 'center', gap: 10, padding: '7px 8px',
@@ -78,52 +89,60 @@ export function Sidebar({ active, onNav, sidebarOn, recents, docs, onPickDoc }: 
         ))}
       </div>
 
-      <div style={{ padding: '20px 20px 8px', fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ink-4)' }}>
-        Recent
-      </div>
-      <div style={{ padding: '0 12px', display: 'flex', flexDirection: 'column', gap: 1, flex: 1, overflow: 'auto' }}>
-        {recents.map((r, i) => (
-          <button key={i} onClick={() => onPickDoc(r.doc)} style={{
-            display: 'block', textAlign: 'left', padding: '8px 8px',
-            border: 0, background: 'transparent', cursor: 'pointer',
-            fontFamily: 'inherit', borderRadius: 8, width: '100%',
-          }}
-          onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
-          onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-          >
-            <div style={{
-              fontSize: 12.5, color: 'var(--ink-2)', lineHeight: 1.35,
-              overflow: 'hidden', display: '-webkit-box',
-              WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-            }}>{r.q}</div>
-            <div style={{ fontSize: 11, color: 'var(--ink-5)', marginTop: 2 }}>{r.when}</div>
-          </button>
-        ))}
-      </div>
+      {recents.length > 0 && (
+        <>
+          <div style={{ padding: '20px 20px 8px', fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ink-4)' }}>
+            Recent
+          </div>
+          <div style={{ padding: '0 12px', display: 'flex', flexDirection: 'column', gap: 1, flex: 1, overflow: 'auto' }}>
+            {recents.map((r, i) => (
+              <button key={i} onClick={() => onPickDoc(r.doc)} style={{
+                display: 'block', textAlign: 'left', padding: '8px 8px',
+                border: 0, background: 'transparent', cursor: 'pointer',
+                fontFamily: 'inherit', borderRadius: 8, width: '100%',
+              }}
+              onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
+              onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+              >
+                <div style={{
+                  fontSize: 12.5, color: 'var(--ink-2)', lineHeight: 1.35,
+                  overflow: 'hidden', display: '-webkit-box',
+                  WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                }}>{r.q}</div>
+                <div style={{ fontSize: 11, color: 'var(--ink-5)', marginTop: 2 }}>{r.when}</div>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      <div style={{ flex: 1 }}/>
 
       <div style={{ padding: 12, borderTop: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{
           width: 32, height: 32, borderRadius: '50%',
           background: 'var(--accent)', color: 'var(--ink)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontWeight: 600, fontSize: 12,
-        }}>AP</div>
+          fontWeight: 600, fontSize: 12, flexShrink: 0,
+        }}>{initials}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>Alex Park</div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>{userName || 'User'}</div>
           <div style={{ fontSize: 11, color: 'var(--ink-4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            alex@docmind.app
+            {userEmail || ''}
           </div>
         </div>
-        <button onClick={() => onNav('settings')} style={{
-          width: 30, height: 30, border: 0, background: 'transparent',
-          color: 'var(--ink-4)', cursor: 'pointer', borderRadius: 8,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}
-        onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
-        onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-        >
-          <ISettings size={15}/>
-        </button>
+        {onLogout && (
+          <button onClick={onLogout} title="Sign out" style={{
+            width: 30, height: 30, border: 0, background: 'transparent',
+            color: 'var(--ink-4)', cursor: 'pointer', borderRadius: 8,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+          onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
+          onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+          >
+            <ILogout size={15}/>
+          </button>
+        )}
       </div>
     </aside>
   );

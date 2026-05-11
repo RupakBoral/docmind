@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { LoginScreen } from './components/auth/LoginScreen';
 import { RegisterScreen } from './components/auth/RegisterScreen';
 import { Sidebar } from './components/dashboard/Sidebar';
@@ -6,7 +6,9 @@ import { Dashboard } from './components/dashboard/Dashboard';
 import { ChatScreen } from './components/chat/ChatScreen';
 import { KbdOverlay } from './components/KbdOverlay';
 import { Toast } from './components/Primitives';
-import { SAMPLE_DOCS, RECENT_QUERIES } from './data/sample';
+import { useAuth } from './context/auth';
+import * as api from './api';
+import type { ApiDoc } from './api';
 import type { Doc } from './data/sample';
 
 type Route =
@@ -21,39 +23,106 @@ interface ToastState {
   kind: 'info' | 'success' | 'error';
 }
 
+const COLOR_PALETTE = [
+  { color: 'oklch(0.92 0.04 25)', accent: 'oklch(0.55 0.13 25)' },
+  { color: 'oklch(0.93 0.035 155)', accent: 'oklch(0.5 0.1 155)' },
+  { color: 'oklch(0.92 0.04 240)', accent: 'oklch(0.5 0.13 240)' },
+  { color: 'oklch(0.93 0.035 55)', accent: 'oklch(0.55 0.12 55)' },
+  { color: 'oklch(0.93 0.038 295)', accent: 'oklch(0.5 0.12 295)' },
+  { color: 'oklch(0.92 0.04 100)', accent: 'oklch(0.5 0.12 100)' },
+];
+
+function getPinnedIds(accountId: string): Set<string> {
+  try {
+    const s = localStorage.getItem(`docmind_pinned_${accountId}`);
+    return s ? new Set(JSON.parse(s)) : new Set();
+  } catch { return new Set(); }
+}
+
+function savePinnedIds(accountId: string, ids: Set<string>) {
+  localStorage.setItem(`docmind_pinned_${accountId}`, JSON.stringify([...ids]));
+}
+
+function apiDocToDoc(d: ApiDoc, pinnedIds: Set<string>): Doc {
+  const idx = d.id.charCodeAt(0) % COLOR_PALETTE.length;
+  const { color, accent } = COLOR_PALETTE[idx];
+  return {
+    id: d.id,
+    name: d.name,
+    title: d.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' '),
+    pages: d.pages ?? 0,
+    chunks: d._count?.chunks ?? 0,
+    size: d.size ?? 0,
+    createdAt: d.createdAt,
+    color,
+    accent,
+    pinned: pinnedIds.has(d.id),
+    excerpt: '',
+  };
+}
+
 export default function App() {
+  const { user, setUser } = useAuth();
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  const [route, setRoute] = useState<Route>({ name: 'login' });
-  const [docs, setDocs] = useState<Doc[]>(SAMPLE_DOCS);
+  const [route, setRoute] = useState<Route>(() => user ? { name: 'dashboard' } : { name: 'login' });
+  const [docs, setDocs] = useState<Doc[]>([]);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [showKbd, setShowKbd] = useState(false);
   const [sidebarOn, setSidebarOn] = useState(true);
-  const [answerStyle] = useState<'bubbles' | 'document'>('bubbles');
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
+
+  const loadDocs = useCallback(async () => {
+    if (!user) return;
+    try {
+      const apiDocs = await api.listDocuments(user.account_id);
+      const pinnedIds = getPinnedIds(user.account_id);
+      setDocs(apiDocs.map(d => apiDocToDoc(d, pinnedIds)));
+    } catch {
+      setToast({ message: 'Failed to load documents', kind: 'error' });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user) loadDocs();
+  }, [user, loadDocs]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const meta = e.metaKey || e.ctrlKey;
       if (meta && e.key === '/') { e.preventDefault(); setShowKbd(s => !s); }
       if (meta && e.key.toLowerCase() === 'b') { e.preventDefault(); setSidebarOn(s => !s); }
-      if (meta && e.key.toLowerCase() === 'u' && route.name !== 'login' && route.name !== 'register') {
-        e.preventDefault();
-        setToast({ message: 'Document ingested', kind: 'success' });
-      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [route.name]);
+  }, []);
 
   const handlePin = (id: string) => {
-    setDocs(d => d.map(x => x.id === id ? { ...x, pinned: !x.pinned } : x));
+    if (!user) return;
+    setDocs(d => {
+      const updated = d.map(x => x.id === id ? { ...x, pinned: !x.pinned } : x);
+      savePinnedIds(user.account_id, new Set(updated.filter(x => x.pinned).map(x => x.id)));
+      return updated;
+    });
+  };
+
+  const handleUpload = async (file: File): Promise<void> => {
+    if (!user) return;
+    await api.ingestDocument(user.account_id, file);
+    await loadDocs();
+    setToast({ message: 'Document ingested', kind: 'success' });
+  };
+
+  const handleLogout = async () => {
+    try { await api.logout(); } catch {}
+    setUser(null);
+    setDocs([]);
+    setRoute({ name: 'login' });
   };
 
   const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
-
   const isAuth = route.name === 'login' || route.name === 'register';
   const showSidebar = !isAuth && sidebarOn;
 
@@ -65,7 +134,7 @@ export default function App() {
           sidebarOn={sidebarOn}
           onToggle={() => setSidebarOn(s => !s)}
           docs={docs}
-          recents={RECENT_QUERIES}
+          recents={[]}
           theme={theme}
           onToggleTheme={toggleTheme}
           onNav={(n) => {
@@ -73,6 +142,9 @@ export default function App() {
             else if (n === 'chat-all') setRoute({ name: 'chat-all' });
           }}
           onPickDoc={(id) => setRoute({ name: 'chat-doc', docId: id })}
+          userName={user ? `${user.first_name} ${user.last_name}` : undefined}
+          userEmail={user?.email}
+          onLogout={handleLogout}
         />
       )}
 
@@ -80,7 +152,7 @@ export default function App() {
         <LoginScreen
           theme={theme}
           onToggleTheme={toggleTheme}
-          onLogin={() => setRoute({ name: 'dashboard' })}
+          onLogin={(u) => { setUser(u); setRoute({ name: 'dashboard' }); }}
           onSwitch={() => setRoute({ name: 'register' })}
         />
       )}
@@ -104,7 +176,7 @@ export default function App() {
           onToggleSidebar={() => setSidebarOn(s => !s)}
           onPickDoc={(id) => setRoute({ name: 'chat-doc', docId: id })}
           onPin={handlePin}
-          onUpload={() => setToast({ message: 'Document ingested', kind: 'success' })}
+          onUpload={handleUpload}
           onShowKbd={() => setShowKbd(true)}
           onNav={(n) => n === 'chat-all' && setRoute({ name: 'chat-all' })}
         />
@@ -112,6 +184,7 @@ export default function App() {
       {(route.name === 'chat-all' || route.name === 'chat-doc') && (
         <ChatScreen
           docs={docs}
+          accountId={user?.account_id || ''}
           sidebarOn={sidebarOn}
           theme={theme}
           onToggleTheme={toggleTheme}
@@ -119,7 +192,7 @@ export default function App() {
           currentDocId={route.name === 'chat-doc' ? route.docId : null}
           onSwitchDoc={(id) => setRoute(id ? { name: 'chat-doc', docId: id } : { name: 'chat-all' })}
           onBack={() => setRoute({ name: 'dashboard' })}
-          answerStyle={answerStyle}
+          answerStyle="bubbles"
           onShowKbd={() => setShowKbd(true)}
         />
       )}

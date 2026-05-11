@@ -8,6 +8,19 @@ import { router } from './router';
 
 const app = express();
 
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    const allowed = ['http://localhost:5173', 'http://localhost:5174'];
+    if (origin && allowed.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    }
+    if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
+    next();
+});
+
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());

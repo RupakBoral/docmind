@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { AuthLayout } from './AuthLayout';
 import { Btn } from '../Primitives';
 import { IDots } from '../Icons';
+import { register } from '../../api';
 
 interface RegisterScreenProps {
   theme: string;
   onToggleTheme: () => void;
-  onRegister: (data: { first: string; last: string; email: string }) => void;
+  onRegister: () => void;
   onSwitch: () => void;
 }
 
@@ -46,7 +47,7 @@ export function RegisterScreen({ theme, onToggleTheme, onRegister, onSwitch }: R
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
-  const submit = (e?: React.FormEvent) => {
+  const submit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     const errors: Record<string, string> = {};
     if (!first.trim()) errors.first = 'Required';
@@ -56,7 +57,14 @@ export function RegisterScreen({ theme, onToggleTheme, onRegister, onSwitch }: R
     setErrs(errors);
     if (Object.keys(errors).length) return;
     setLoading(true);
-    setTimeout(() => { setLoading(false); onRegister({ first, last, email }); }, 700);
+    try {
+      await register({ first_name: first.trim(), last_name: last.trim(), email, password: pw });
+      onRegister();
+    } catch (err: any) {
+      setErrs({ form: err.message || 'Registration failed' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -76,7 +84,13 @@ export function RegisterScreen({ theme, onToggleTheme, onRegister, onSwitch }: R
         <Field label="Email" type="email" value={email} onChange={setEmail} error={errs.email} placeholder="you@company.com"/>
         <Field label="Password" type="password" value={pw} onChange={setPw} error={errs.pw} placeholder="At least 8 characters"/>
 
-        <Btn type="submit" size="lg" style={{ width: '100%', justifyContent: 'center', marginTop: 12 }} disabled={loading}>
+        {errs.form && (
+          <div style={{ fontSize: 13, color: 'var(--danger)', marginBottom: 12, padding: '8px 12px', background: 'color-mix(in oklch, var(--danger) 10%, var(--bg))', borderRadius: 8 }}>
+            {errs.form}
+          </div>
+        )}
+
+        <Btn type="submit" size="lg" style={{ width: '100%', justifyContent: 'center', marginTop: 4 }} disabled={loading}>
           {loading ? <><IDots size={16}/> Creating…</> : 'Create account'}
         </Btn>
 

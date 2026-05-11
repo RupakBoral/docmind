@@ -6,7 +6,18 @@
       "Bash(npm install *)",
       "Bash(npm run *)",
       "Bash(npx vite *)",
-      "Bash(dir C:\\\\Users\\\\parsh\\\\Documents\\\\ProjectX\\\\Docmind\\\\Docmind\\\\frontend\\\\src\\\\components\\\\dashboard *)"
+      "Bash(dir C:\\\\Users\\\\parsh\\\\Documents\\\\ProjectX\\\\Docmind\\\\Docmind\\\\frontend\\\\src\\\\components\\\\dashboard *)",
+      "Bash(git filter-branch *)",
+      "Bash(git stash *)",
+      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch *)",
+      "Bash(git restore *)",
+      "Bash(xargs -I{} git update-ref -d {})",
+      "Bash(git reflog *)",
+      "Bash(git gc *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\parsh\\\\Documents\\\\ProjectX\\\\Docmind\\\\Docmind\" -Force)",
+      "Bash(Select-Object Name, FullName)",
+      "Bash(npx tsc *)",
+      "Bash(node_modules/.bin/tsc --noEmit)"
     ]
   }
 }

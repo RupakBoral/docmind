@@ -5,7 +5,7 @@ import { ISearch, IUpload, IKbd, ISun, IMoon, IMessage, IPin, IPinFilled, IDots 
 
 function formatDate(iso: string) {
   const d = new Date(iso);
-  const now = new Date('2026-04-29T12:00:00Z');
+  const now = new Date();
   const diff = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
   if (diff < 1) return 'Today';
   if (diff < 2) return 'Yesterday';
@@ -81,7 +81,7 @@ function DocCard({ doc, onClick, onPin }: { doc: Doc; onClick: () => void; onPin
   );
 }
 
-function DropZone({ onDrop, uploading }: { onDrop: () => void; uploading: boolean }) {
+function DropZone({ onDrop, uploading }: { onDrop: (file: File) => void; uploading: boolean }) {
   const [over, setOver] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -92,7 +92,10 @@ function DropZone({ onDrop, uploading }: { onDrop: () => void; uploading: boolea
       onClick={openPicker}
       onDragOver={(e) => { e.preventDefault(); setOver(true); }}
       onDragLeave={() => setOver(false)}
-      onDrop={(e) => { e.preventDefault(); setOver(false); if (!uploading) onDrop(); }}
+      onDrop={(e) => {
+        e.preventDefault(); setOver(false);
+        if (!uploading && e.dataTransfer.files?.length) onDrop(e.dataTransfer.files[0]);
+      }}
       style={{
         border: `1.5px dashed ${over ? 'var(--sage)' : 'var(--line-3)'}`,
         background: over ? 'var(--sage-bg)' : 'var(--bg-softer)',
@@ -108,7 +111,7 @@ function DropZone({ onDrop, uploading }: { onDrop: () => void; uploading: boolea
         accept=".pdf"
         style={{ display: 'none' }}
         onChange={(e) => {
-          if (e.target.files?.length) { onDrop(); e.target.value = ''; }
+          if (e.target.files?.length) { onDrop(e.target.files[0]); e.target.value = ''; }
         }}
       />
       <div style={{
@@ -141,7 +144,7 @@ interface DashboardProps {
   docs: Doc[];
   onPickDoc: (id: string) => void;
   onPin: (id: string) => void;
-  onUpload: () => void;
+  onUpload: (file: File) => Promise<void>;
   onShowKbd: () => void;
   sidebarOn: boolean;
   onToggleSidebar: () => void;
@@ -152,12 +155,20 @@ interface DashboardProps {
 
 export function Dashboard({ docs, onPickDoc, onPin, onUpload, onShowKbd, sidebarOn, onToggleSidebar, onNav, theme, onToggleTheme }: DashboardProps) {
   const [uploading, setUploading] = useState(false);
+  const [errMsg, setErrMsg] = useState('');
   const headerFileRef = useRef<HTMLInputElement>(null);
 
-  const handleUpload = () => {
+  const handleUpload = async (file: File) => {
     if (uploading) return;
     setUploading(true);
-    setTimeout(() => { setUploading(false); onUpload(); }, 1400);
+    setErrMsg('');
+    try {
+      await onUpload(file);
+    } catch (err: any) {
+      setErrMsg(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const pinned = docs.filter(d => d.pinned);
@@ -195,7 +206,7 @@ export function Dashboard({ docs, onPickDoc, onPin, onUpload, onShowKbd, sidebar
           type="file"
           accept=".pdf"
           style={{ display: 'none' }}
-          onChange={(e) => { if (e.target.files?.length) { handleUpload(); e.target.value = ''; } }}
+          onChange={(e) => { if (e.target.files?.length) { handleUpload(e.target.files[0]); e.target.value = ''; } }}
         />
         <Btn size="sm" variant="primary" icon={<IUpload size={14}/>} onClick={() => headerFileRef.current?.click()} disabled={uploading}>
           Upload PDF
@@ -218,6 +229,12 @@ export function Dashboard({ docs, onPickDoc, onPin, onUpload, onShowKbd, sidebar
             </Btn>
           </div>
 
+          {errMsg && (
+            <div style={{ marginBottom: 16, padding: '10px 14px', borderRadius: 10, background: 'color-mix(in oklch, var(--danger) 10%, var(--bg))', color: 'var(--danger)', fontSize: 13 }}>
+              {errMsg}
+            </div>
+          )}
+
           <div style={{ marginBottom: 32 }}>
             <DropZone onDrop={handleUpload} uploading={uploading}/>
           </div>
@@ -231,10 +248,20 @@ export function Dashboard({ docs, onPickDoc, onPin, onUpload, onShowKbd, sidebar
             </>
           )}
 
-          <SectionHeader label="All documents" style={{ marginTop: pinned.length ? 36 : 0 }}/>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(208px, 1fr))', gap: 8 }}>
-            {others.map(d => <DocCard key={d.id} doc={d} onClick={() => onPickDoc(d.id)} onPin={onPin}/>)}
-          </div>
+          {others.length > 0 && (
+            <>
+              <SectionHeader label="All documents" style={{ marginTop: pinned.length ? 36 : 0 }}/>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(208px, 1fr))', gap: 8 }}>
+                {others.map(d => <DocCard key={d.id} doc={d} onClick={() => onPickDoc(d.id)} onPin={onPin}/>)}
+              </div>
+            </>
+          )}
+
+          {docs.length === 0 && !uploading && (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--ink-4)' }}>
+              <div style={{ fontSize: 15 }}>No documents yet. Upload a PDF to get started.</div>
+            </div>
+          )}
         </div>
       </div>
     </div>

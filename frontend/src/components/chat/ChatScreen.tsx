@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { Doc, Message, Citation } from '../../data/sample';
-import { SAMPLE_THREADS } from '../../data/sample';
 import { TypingDots } from '../Primitives';
 import { IArrowL, IChevDown, IKbd, ISun, IMoon, ISparkle, ISend } from '../Icons';
+import { queryDocuments } from '../../api';
 
 const kbdInline: React.CSSProperties = {
   fontFamily: '"JetBrains Mono", monospace', fontSize: 10,
@@ -53,8 +53,7 @@ function CitationCard({ citation, docs, num }: { citation: Citation; docs: Doc[]
           fontFamily: '"JetBrains Mono", monospace',
         }}>
           <span style={{ color: doc?.accent || 'inherit', fontWeight: 500 }}>{doc?.title || 'Document'}</span>
-          <span>·</span><span>p. {citation.page}</span>
-          <span>·</span><span>chunk {citation.chunk}</span>
+          {citation.page > 0 && <><span>·</span><span>p. {citation.page}</span></>}
         </div>
         <div style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--ink-2)', fontStyle: 'italic' }}>
           "{citation.snippet}"
@@ -116,41 +115,6 @@ function MessageBubble({ msg, docs }: { msg: Message; docs: Doc[] }) {
           </div>
         )}
       </div>
-    </div>
-  );
-}
-
-function MessageDoc({ msg, docs }: { msg: Message; docs: Doc[] }) {
-  if (msg.role === 'user') {
-    return (
-      <div style={{ marginBottom: 24, paddingLeft: 18, borderLeft: '2.5px solid var(--accent)' }}>
-        <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ink-4)', marginBottom: 6 }}>
-          You asked
-        </div>
-        <div style={{ fontFamily: '"Instrument Serif", serif', fontSize: 26, letterSpacing: '-0.015em', color: 'var(--ink)', lineHeight: 1.25 }}>
-          {msg.content}
-        </div>
-      </div>
-    );
-  }
-  return (
-    <div style={{ marginBottom: 36 }}>
-      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ink-4)', marginBottom: 10 }}>
-        Answer
-      </div>
-      <div style={{ fontSize: 15.5, lineHeight: 1.7, color: 'var(--ink-2)' }}>
-        {renderWithCites(msg.content, msg.citations, docs)}
-      </div>
-      {msg.citations && msg.citations.length > 0 && (
-        <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid var(--line)' }}>
-          <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ink-4)', marginBottom: 12 }}>
-            From your documents
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {msg.citations.map((c, i) => <CitationCard key={i} citation={c} docs={docs} num={i + 1}/>)}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -225,7 +189,7 @@ function ChatEmpty({ doc, onPickPrompt }: { doc: Doc | null | undefined; onPickP
     `What does this document NOT cover that I should know?`,
   ] : [
     'Compare what each of my docs says about caching',
-    'Find every mention of "consistency" across all documents',
+    'Find every mention of consistency across all documents',
     'Which document is most relevant to onboarding a new engineer?',
     'Summarize the last document I uploaded',
   ];
@@ -264,6 +228,7 @@ function ChatEmpty({ doc, onPickPrompt }: { doc: Doc | null | undefined; onPickP
 
 interface ChatScreenProps {
   docs: Doc[];
+  accountId: string;
   currentDocId: string | null;
   onSwitchDoc: (id: string | null) => void;
   onBack: () => void;
@@ -275,51 +240,52 @@ interface ChatScreenProps {
   onToggleTheme: () => void;
 }
 
-export function ChatScreen({ docs, currentDocId, onSwitchDoc, onBack, answerStyle, onShowKbd, sidebarOn, onToggleSidebar, theme, onToggleTheme }: ChatScreenProps) {
-  const getInitial = (docId: string | null) => {
-    if (docId && SAMPLE_THREADS[docId]) return SAMPLE_THREADS[docId];
-    if (!docId && SAMPLE_THREADS.all) return SAMPLE_THREADS.all;
-    return [];
-  };
-
-  const [messages, setMessages] = useState<Message[]>(() => getInitial(currentDocId));
+export function ChatScreen({ docs, accountId, currentDocId, onSwitchDoc, onBack, onShowKbd, sidebarOn, onToggleSidebar, theme, onToggleTheme }: ChatScreenProps) {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [pending, setPending] = useState(false);
+  const [errMsg, setErrMsg] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMessages(getInitial(currentDocId));
+    setMessages([]);
+    setErrMsg('');
   }, [currentDocId]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, pending]);
 
-  const send = () => {
+  const send = async () => {
     const text = input.trim();
     if (!text || pending) return;
     setMessages(m => [...m, { role: 'user', content: text }]);
     setInput('');
     setPending(true);
-    setTimeout(() => {
-      const doc = currentDocId ? docs.find(d => d.id === currentDocId) : null;
-      const reply: Message = {
+    setErrMsg('');
+    try {
+      const result = await queryDocuments(accountId, text, currentDocId);
+      const citations: Citation[] = result.citations.map((c, i) => ({
+        docId: c.document_id,
+        page: c.page ?? 0,
+        chunk: i,
+        snippet: c.content.length > 220 ? c.content.slice(0, 220) + '…' : c.content,
+      }));
+      setMessages(m => [...m, {
         role: 'assistant',
-        content: doc
-          ? `Based on ${doc.title}, ${text.toLowerCase().startsWith('how') ? 'the document explains it as a multi-stage process' : 'this is addressed in the relevant section'}. The handling combines both deterministic and probabilistic strategies, balancing correctness with throughput.`
-          : `Across your library, this comes up in three places. The treatment is consistent: bounded-memory primitives that trade exactness for predictable resource use.`,
-        citations: [
-          { docId: doc?.id || 'doc_redis', page: 73, chunk: 142, snippet: 'The mechanism described here trades exactness for bounded latency, with worst-case behavior dominated by sample size rather than dataset size.' },
-          { docId: doc?.id || 'doc_system', page: 156, chunk: 298, snippet: 'For workloads where stale reads are tolerable, the eventually-consistent path simplifies coordination and reduces tail latency.' },
-        ],
-      };
-      setMessages(m => [...m, reply]);
+        content: result.answer,
+        citations,
+      }]);
+    } catch (err: any) {
+      setErrMsg(err.message || 'Failed to get a response');
+      setMessages(m => m.slice(0, -1));
+      setInput(text);
+    } finally {
       setPending(false);
-    }, 1400);
+    }
   };
 
   const currentDoc = currentDocId ? docs.find(d => d.id === currentDocId) : null;
-  const isDoc = answerStyle === 'document';
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -351,19 +317,20 @@ export function ChatScreen({ docs, currentDocId, onSwitchDoc, onBack, answerStyl
       </header>
 
       <div ref={scrollRef} style={{ flex: 1, overflow: 'auto', background: 'var(--bg)' }}>
-        <div style={{ maxWidth: isDoc ? 720 : 760, margin: '0 auto', padding: isDoc ? '40px 28px 120px' : '32px 28px 120px' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto', padding: '32px 28px 120px' }}>
           {messages.length === 0 && <ChatEmpty doc={currentDoc} onPickPrompt={(p) => setInput(p)}/>}
-          {messages.map((m, i) => (
-            isDoc
-              ? <MessageDoc key={i} msg={m} docs={docs}/>
-              : <MessageBubble key={i} msg={m} docs={docs}/>
-          ))}
+          {messages.map((m, i) => <MessageBubble key={i} msg={m} docs={docs}/>)}
           {pending && <TypingDots/>}
         </div>
       </div>
 
       <div style={{ padding: '16px 24px 22px', borderTop: '1px solid var(--line)', background: 'var(--bg)' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          {errMsg && (
+            <div style={{ marginBottom: 8, fontSize: 12.5, color: 'var(--danger)', padding: '6px 12px', background: 'color-mix(in oklch, var(--danger) 10%, var(--bg))', borderRadius: 8 }}>
+              {errMsg}
+            </div>
+          )}
           <div style={{
             display: 'flex', alignItems: 'flex-end', gap: 10,
             background: 'var(--bg-softer)', borderRadius: 22, padding: '8px 8px 8px 18px',
