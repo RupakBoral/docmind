@@ -23,7 +23,7 @@ export const retrieve = async (account_id: string, vector_string: string, doc_id
                 JOIN "chunk" AS ch
                 ON ch.document_id = ${doc_id}
                 ORDER BY similarity DESC
-                LIMIT 5
+                LIMIT 3
                 `
             : await prisma.$queryRaw`
                 SELECT ch.document_id, ch.content, ch.page,
@@ -34,7 +34,7 @@ export const retrieve = async (account_id: string, vector_string: string, doc_id
                 JOIN "chunk" AS ch
                 ON ch.document_id = doc.id
                 ORDER BY similarity DESC
-                LIMIT 5
+                LIMIT 3
             `;
 
         return chunks;

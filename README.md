@@ -147,8 +147,18 @@ POSTGRES_USER=username
 POSTGRES_PASSWORD=password
 DATABASE_URL=postgresql://username:password@postgres:5432/your_db
 
-# Google Groq
+# Groq
 GROQ_API_KEY=your_groq_api_key
+
+# OLLAMA HOST
+OLLAMA_HOST=http://host.docker.internal:11434
+
+# JWT
+JWT_SECRET=jwt_secret
+
+# chunk size & overlap size for chunking
+CHUNK_SIZE=300
+OVERLAP=100
 ```
 
 ---
@@ -160,26 +170,37 @@ GROQ_API_KEY=your_groq_api_key
 - Ollama (https://docs.ollama.com/linux)
 - Groq API
 
-### Start
+### Start the backend services
 
 ```bash
 # clone the repo
 git clone https://github.com/RupakBoral/Docmind.git
+
+# move to backend folder
 cd docmind/backend
 
 # copy env
 cp .env.example .env
 # add your API KEYs and other details
 
-# start psql services
+# start all services (backend, db, ollama)
 docker-compose up -d --build
 
 # Apply Prisma schema to Database (first time only)
 docker exec -it docmind-app npx prisma db push
 
 # Pull the embedding model (274 MB model, first time only)
-
 docker exec -it docmind-ollama ollama pull nomic-embed-text
+```
+
+
+### Start the frontend service
+```bash
+# move to frontend
+cd docmind/frontend
+
+# Run the application, website will be live in default port 5173
+npm run dev
 ```
 
 
@@ -189,7 +210,13 @@ docker ps
 ```
 
 
-### Stop
+### Check container logs
+```
+docker logs <container_name>
+```
+
+
+### Stop services
 ```
 docker compose down
 ```
@@ -214,9 +241,7 @@ ollama    → Local embedding model (nomic-embed-text)
 | Text chunking with overlap | chunking.ts |
 | Local embeddings (nomic-embed-text) | embedding.ts |
 | pgvector cosine similarity search | retrieval.ts |
-| Query rewriting for better retrieval | llm.ts |
-| Prompt engineering with context | llm.ts |
-| Prisma with raw SQL for vector ops | retrieval.ts |
+| Query rewriting and prompting with context | llm.ts |
 
 ---
 

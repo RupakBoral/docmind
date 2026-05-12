@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { KBD_SHORTCUTS } from '../data/sample';
+import { KBD_SHORTCUTS } from '../types/index';
 import { IX } from './Icons';
 
 interface KbdOverlayProps {
@@ -36,7 +36,7 @@ export function KbdOverlay({ open, onClose }: KbdOverlayProps) {
             width: 32, height: 32, borderRadius: 10, border: 0,
             background: 'var(--bg-hover)', color: 'var(--ink-3)',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}><IX size={14}/></button>
+          }}><IX size={14} /></button>
         </div>
         <div style={{ fontSize: 13, color: 'var(--ink-4)', marginBottom: 22 }}>
           Move faster. These work everywhere in Docmind.

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { Doc } from '../data/sample';
+import type { Doc } from '../types';
 import { ICheck, IX, ISparkle } from './Icons';
 
 interface BtnProps {
@@ -16,11 +16,11 @@ interface BtnProps {
 export function Btn({ children, onClick, variant = 'primary', size = 'md', icon, style, type = 'button', disabled }: BtnProps) {
   const sz = size === 'sm' ? { h: 32, px: 12, fs: 13 } : size === 'lg' ? { h: 48, px: 22, fs: 15 } : { h: 38, px: 16, fs: 14 };
   const bg = variant === 'primary' ? 'var(--ink)' :
-             variant === 'ghost'   ? 'transparent' :
-             variant === 'soft'    ? 'var(--bg-hover)' : 'var(--bg)';
+    variant === 'ghost' ? 'transparent' :
+      variant === 'soft' ? 'var(--bg-hover)' : 'var(--bg)';
   const fg = variant === 'primary' ? 'var(--bg)' : 'var(--ink)';
   const border = variant === 'secondary' ? '1px solid var(--line-2)' :
-                 variant === 'ghost' ? '1px solid transparent' : 'none';
+    variant === 'ghost' ? '1px solid transparent' : 'none';
   return (
     <button
       type={type}
@@ -64,8 +64,8 @@ export function Toast({ message, kind = 'info', onClose }: ToastProps) {
       boxShadow: '0 12px 32px rgba(40,28,12,0.25)',
       animation: 'toastIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
     }}>
-      {kind === 'success' && <ICheck size={14} stroke="var(--sage)"/>}
-      {kind === 'error' && <IX size={14} stroke="var(--danger)"/>}
+      {kind === 'success' && <ICheck size={14} stroke="var(--sage)" />}
+      {kind === 'error' && <IX size={14} stroke="var(--danger)" />}
       {message}
     </div>
   );
@@ -91,12 +91,12 @@ export function DocThumb({ doc, w = 200, h = 248 }: { doc: Doc; w?: number; h?: 
       <div style={{
         position: 'absolute', top: 0, right: 0, width: 22, height: 22,
         background: 'linear-gradient(225deg, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.18) 50%, transparent 50%)',
-      }}/>
+      }} />
       <div style={{
         position: 'absolute', top: 0, right: 0, width: 22, height: 22,
         background: 'linear-gradient(225deg, var(--doc-fold-page) 0%, var(--doc-fold-page) 50%, transparent 50%)',
         clipPath: 'polygon(100% 0, 100% 100%, 0 100%)',
-      }}/>
+      }} />
       <div style={{
         position: 'absolute', top: 18, left: 16, right: 16,
         fontFamily: '"Instrument Serif", serif', fontSize: w > 180 ? 22 : 16,
@@ -109,7 +109,7 @@ export function DocThumb({ doc, w = 200, h = 248 }: { doc: Doc; w?: number; h?: 
           <div key={i} style={{
             height: 4, width: `${wd}%`, borderRadius: 2,
             background: doc.accent, opacity: 0.16,
-          }}/>
+          }} />
         ))}
       </div>
       <div style={{
@@ -133,15 +133,15 @@ export function TypingDots() {
         width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
         background: 'var(--accent)', color: 'var(--ink)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}><ISparkle size={14}/></div>
+      }}><ISparkle size={14} /></div>
       <div style={{
         padding: '14px 18px', borderRadius: '4px 20px 20px 20px',
         background: 'var(--bg-softer)',
         display: 'flex', alignItems: 'center', gap: 5,
       }}>
-        <span className="dm-dot" style={{ animationDelay: '0s' }}/>
-        <span className="dm-dot" style={{ animationDelay: '0.15s' }}/>
-        <span className="dm-dot" style={{ animationDelay: '0.3s' }}/>
+        <span className="dm-dot" style={{ animationDelay: '0s' }} />
+        <span className="dm-dot" style={{ animationDelay: '0.15s' }} />
+        <span className="dm-dot" style={{ animationDelay: '0.3s' }} />
       </div>
     </div>
   );

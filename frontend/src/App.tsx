@@ -9,7 +9,7 @@ import { Toast } from './components/Primitives';
 import { useAuth } from './context/auth';
 import * as api from './api';
 import type { ApiDoc } from './api';
-import type { Doc } from './data/sample';
+import type { Doc } from './types';
 
 type Route =
   | { name: 'login' }
@@ -51,7 +51,6 @@ function apiDocToDoc(d: ApiDoc, pinnedIds: Set<string>): Doc {
     name: d.name,
     title: d.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' '),
     pages: d.pages ?? 0,
-    chunks: d._count?.chunks ?? 0,
     size: d.size ?? 0,
     createdAt: d.createdAt,
     color,
@@ -116,7 +115,7 @@ export default function App() {
   };
 
   const handleLogout = async () => {
-    try { await api.logout(); } catch {}
+    try { await api.logout(); } catch { }
     setUser(null);
     setDocs([]);
     setRoute({ name: 'login' });
@@ -197,8 +196,8 @@ export default function App() {
         />
       )}
 
-      <KbdOverlay open={showKbd} onClose={() => setShowKbd(false)}/>
-      {toast && <Toast message={toast.message} kind={toast.kind} onClose={() => setToast(null)}/>}
+      <KbdOverlay open={showKbd} onClose={() => setShowKbd(false)} />
+      {toast && <Toast message={toast.message} kind={toast.kind} onClose={() => setToast(null)} />}
     </div>
   );
 }

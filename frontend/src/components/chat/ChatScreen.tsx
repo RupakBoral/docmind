@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import type { Doc, Message, Citation } from '../../data/sample';
+import type { Doc, Message, Citation } from '../../types';
 import { TypingDots } from '../Primitives';
 import { IArrowL, IChevDown, IKbd, ISun, IMoon, ISparkle, ISend } from '../Icons';
 import { queryDocuments } from '../../api';
@@ -72,7 +72,7 @@ function renderWithCites(text: string, citations: Citation[] | undefined, docs: 
       <p key={pi} style={{ margin: pi === 0 ? '0 0 14px' : '14px 0' }}>
         {para}
         {citesForPara.map((c, i) => (
-          <CiteChip key={i} citation={c} docs={docs} num={i + 1}/>
+          <CiteChip key={i} citation={c} docs={docs} num={i + 1} />
         ))}
       </p>
     );
@@ -97,7 +97,7 @@ function MessageBubble({ msg, docs }: { msg: Message; docs: Doc[] }) {
         width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
         background: 'var(--accent)', color: 'var(--ink)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}><ISparkle size={14}/></div>
+      }}><ISparkle size={14} /></div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
           padding: '12px 18px', borderRadius: '4px 20px 20px 20px',
@@ -111,7 +111,7 @@ function MessageBubble({ msg, docs }: { msg: Message; docs: Doc[] }) {
             <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ink-4)', padding: '0 4px' }}>
               {msg.citations.length} sources
             </div>
-            {msg.citations.map((c, i) => <CitationCard key={i} citation={c} docs={docs} num={i + 1}/>)}
+            {msg.citations.map((c, i) => <CitationCard key={i} citation={c} docs={docs} num={i + 1} />)}
           </div>
         )}
       </div>
@@ -140,11 +140,11 @@ function DocSelector({ docs, currentDocId, onChange }: { docs: Doc[]; currentDoc
         <span style={{ color: 'var(--ink-4)' }}>Searching:</span>
         {current ? (
           <>
-            <div style={{ width: 6, height: 6, borderRadius: 2, background: current.accent }}/>
+            <div style={{ width: 6, height: 6, borderRadius: 2, background: current.accent }} />
             <span style={{ fontWeight: 500 }}>{current.title}</span>
           </>
         ) : <span style={{ fontWeight: 500 }}>All documents</span>}
-        <IChevDown size={13} style={{ color: 'var(--ink-4)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}/>
+        <IChevDown size={13} style={{ color: 'var(--ink-4)', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }} />
       </button>
       {open && (
         <div style={{
@@ -158,21 +158,20 @@ function DocSelector({ docs, currentDocId, onChange }: { docs: Doc[]; currentDoc
             cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, color: 'var(--ink)', borderRadius: 9, textAlign: 'left',
           }}>
             <div style={{ width: 18, height: 18, borderRadius: 5, background: 'var(--bg-active)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ISparkle size={11} stroke="var(--ink-3)"/>
+              <ISparkle size={11} stroke="var(--ink-3)" />
             </div>
             <span>All documents</span>
             <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--ink-4)', fontFamily: '"JetBrains Mono", monospace' }}>{docs.length}</span>
           </button>
-          <div style={{ height: 1, background: 'var(--line)', margin: '4px 6px' }}/>
+          <div style={{ height: 1, background: 'var(--line)', margin: '4px 6px' }} />
           {docs.map(d => (
             <button key={d.id} onClick={() => { onChange(d.id); setOpen(false); }} style={{
               display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px',
               width: '100%', border: 0, background: currentDocId === d.id ? 'var(--bg-hover)' : 'transparent',
               cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, color: 'var(--ink)', borderRadius: 9, textAlign: 'left',
             }}>
-              <div style={{ width: 18, height: 18, borderRadius: 5, background: d.color, flexShrink: 0 }}/>
+              <div style={{ width: 18, height: 18, borderRadius: 5, background: d.color, flexShrink: 0 }} />
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.title}</span>
-              <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--ink-4)', fontFamily: '"JetBrains Mono", monospace' }}>{d.chunks}</span>
             </button>
           ))}
         </div>
@@ -199,7 +198,7 @@ function ChatEmpty({ doc, onPickPrompt }: { doc: Doc | null | undefined; onPickP
         width: 56, height: 56, borderRadius: 16, margin: '0 auto 16px',
         background: 'var(--bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <ISparkle size={22} stroke="var(--ink-3)"/>
+        <ISparkle size={22} stroke="var(--ink-3)" />
       </div>
       <div style={{ fontFamily: '"Instrument Serif", serif', fontSize: 32, letterSpacing: '-0.02em', color: 'var(--ink)', lineHeight: 1.1 }}>
         What would you like to know?
@@ -215,8 +214,8 @@ function ChatEmpty({ doc, onPickPrompt }: { doc: Doc | null | undefined; onPickP
             fontFamily: 'inherit', fontSize: 13, lineHeight: 1.4,
             color: 'var(--ink-2)', textAlign: 'left', transition: 'all 0.15s',
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--line-3)'; (e.currentTarget as HTMLElement).style.background = 'var(--bg-softer)'; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--line)'; (e.currentTarget as HTMLElement).style.background = 'var(--bg)'; }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--line-3)'; (e.currentTarget as HTMLElement).style.background = 'var(--bg-softer)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--line)'; (e.currentTarget as HTMLElement).style.background = 'var(--bg)'; }}
           >
             {p}
           </button>
@@ -296,31 +295,26 @@ export function ChatScreen({ docs, accountId, currentDocId, onSwitchDoc, onBack,
         {!sidebarOn && (
           <button onClick={onToggleSidebar} style={iconBtn}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-              <path d="M3 6h18M3 12h18M3 18h18"/>
+              <path d="M3 6h18M3 12h18M3 18h18" />
             </svg>
           </button>
         )}
         <button onClick={onBack} style={{ ...iconBtn, width: 32, height: 32 }} title="Back to library">
-          <IArrowL size={15}/>
+          <IArrowL size={15} />
         </button>
-        <DocSelector docs={docs} currentDocId={currentDocId} onChange={onSwitchDoc}/>
-        <div style={{ flex: 1 }}/>
-        {currentDoc && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--ink-4)', fontFamily: '"JetBrains Mono", monospace' }}>
-            <span>{currentDoc.pages} pp</span><span>·</span><span>{currentDoc.chunks} chunks</span>
-          </div>
-        )}
-        <button onClick={onShowKbd} style={iconBtn} title="Keyboard shortcuts"><IKbd size={16}/></button>
+        <DocSelector docs={docs} currentDocId={currentDocId} onChange={onSwitchDoc} />
+        <div style={{ flex: 1 }} />
+        <button onClick={onShowKbd} style={iconBtn} title="Keyboard shortcuts"><IKbd size={16} /></button>
         <button onClick={onToggleTheme} style={iconBtn}>
-          {theme === 'dark' ? <ISun size={16}/> : <IMoon size={16}/>}
+          {theme === 'dark' ? <ISun size={16} /> : <IMoon size={16} />}
         </button>
       </header>
 
       <div ref={scrollRef} style={{ flex: 1, overflow: 'auto', background: 'var(--bg)' }}>
         <div style={{ maxWidth: 760, margin: '0 auto', padding: '32px 28px 120px' }}>
-          {messages.length === 0 && <ChatEmpty doc={currentDoc} onPickPrompt={(p) => setInput(p)}/>}
-          {messages.map((m, i) => <MessageBubble key={i} msg={m} docs={docs}/>)}
-          {pending && <TypingDots/>}
+          {messages.length === 0 && <ChatEmpty doc={currentDoc} onPickPrompt={(p) => setInput(p)} />}
+          {messages.map((m, i) => <MessageBubble key={i} msg={m} docs={docs} />)}
+          {pending && <TypingDots />}
         </div>
       </div>
 
@@ -356,7 +350,7 @@ export function ChatScreen({ docs, accountId, currentDocId, onSwitchDoc, onBack,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               transition: 'background 0.15s',
             }}>
-              <ISend size={14}/>
+              <ISend size={14} />
             </button>
           </div>
           <div style={{ marginTop: 8, fontSize: 11.5, color: 'var(--ink-4)', display: 'flex', justifyContent: 'space-between', padding: '0 6px' }}>

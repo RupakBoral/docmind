@@ -30,7 +30,6 @@ export interface ApiDoc {
   pages: number | null;
   account_id: string | null;
   createdAt: string;
-  _count: { chunks: number };
 }
 
 export interface ApiCitation {

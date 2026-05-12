@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import type { Doc } from '../../data/sample';
+import type { Doc } from '../../types';
 import { DocThumb, Btn } from '../Primitives';
 import { ISearch, IUpload, IKbd, ISun, IMoon, IMessage, IPin, IPinFilled, IDots } from '../Icons';
 
@@ -24,7 +24,7 @@ function SectionHeader({ label, icon, style }: { label: string; icon?: React.Rea
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14, ...style }}>
       {icon}
       <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ink-3)' }}>{label}</div>
-      <div style={{ flex: 1, height: 1, background: 'var(--line)' }}/>
+      <div style={{ flex: 1, height: 1, background: 'var(--line)' }} />
     </div>
   );
 }
@@ -46,7 +46,7 @@ function DocCard({ doc, onClick, onPin }: { doc: Doc; onClick: () => void; onPin
       }}
     >
       <div style={{ position: 'relative' }}>
-        <DocThumb doc={doc} w={208} h={264}/>
+        <DocThumb doc={doc} w={208} h={264} />
         <button onClick={(e) => { e.stopPropagation(); onPin(doc.id); }} style={{
           position: 'absolute', top: 10, left: 10,
           width: 30, height: 30, borderRadius: '50%', border: 0,
@@ -57,7 +57,7 @@ function DocCard({ doc, onClick, onPin }: { doc: Doc; onClick: () => void; onPin
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 2px 6px rgba(40,28,12,0.12)',
         }}>
-          {doc.pinned ? <IPinFilled size={13}/> : <IPin size={13}/>}
+          {doc.pinned ? <IPinFilled size={13} /> : <IPin size={13} />}
         </button>
       </div>
       <div style={{ padding: '0 4px' }}>
@@ -72,8 +72,6 @@ function DocCard({ doc, onClick, onPin }: { doc: Doc; onClick: () => void; onPin
           fontFamily: '"JetBrains Mono", monospace',
           display: 'flex', gap: 10,
         }}>
-          <span>{doc.chunks} chunks</span>
-          <span>·</span>
           <span>{formatDate(doc.createdAt)}</span>
         </div>
       </div>
@@ -121,7 +119,7 @@ function DropZone({ onDrop, uploading }: { onDrop: (file: File) => void; uploadi
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         transition: 'all 0.15s',
       }}>
-        {uploading ? <IDots size={18}/> : <IUpload size={18}/>}
+        {uploading ? <IDots size={18} /> : <IUpload size={18} />}
       </div>
       <div style={{ flex: 1 }}>
         <div style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>
@@ -183,7 +181,7 @@ export function Dashboard({ docs, onPickDoc, onPin, onUpload, onShowKbd, sidebar
         {!sidebarOn && (
           <button onClick={onToggleSidebar} style={iconBtn}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-              <path d="M3 6h18M3 12h18M3 18h18"/>
+              <path d="M3 6h18M3 12h18M3 18h18" />
             </svg>
           </button>
         )}
@@ -192,14 +190,14 @@ export function Dashboard({ docs, onPickDoc, onPin, onUpload, onShowKbd, sidebar
           background: 'var(--bg-softer)', display: 'flex', alignItems: 'center',
           gap: 8, padding: '0 12px', color: 'var(--ink-4)',
         }}>
-          <ISearch size={14}/>
+          <ISearch size={14} />
           <span style={{ fontSize: 13, flex: 1 }}>Search documents…</span>
           <span style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 11, color: 'var(--ink-4)' }}>⌘K</span>
         </div>
-        <div style={{ flex: 1 }}/>
-        <button onClick={onShowKbd} style={iconBtn} title="Keyboard shortcuts"><IKbd size={16}/></button>
+        <div style={{ flex: 1 }} />
+        <button onClick={onShowKbd} style={iconBtn} title="Keyboard shortcuts"><IKbd size={16} /></button>
         <button onClick={onToggleTheme} style={iconBtn} title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}>
-          {theme === 'dark' ? <ISun size={16}/> : <IMoon size={16}/>}
+          {theme === 'dark' ? <ISun size={16} /> : <IMoon size={16} />}
         </button>
         <input
           ref={headerFileRef}
@@ -208,7 +206,7 @@ export function Dashboard({ docs, onPickDoc, onPin, onUpload, onShowKbd, sidebar
           style={{ display: 'none' }}
           onChange={(e) => { if (e.target.files?.length) { handleUpload(e.target.files[0]); e.target.value = ''; } }}
         />
-        <Btn size="sm" variant="primary" icon={<IUpload size={14}/>} onClick={() => headerFileRef.current?.click()} disabled={uploading}>
+        <Btn size="sm" variant="primary" icon={<IUpload size={14} />} onClick={() => headerFileRef.current?.click()} disabled={uploading}>
           Upload PDF
         </Btn>
       </header>
@@ -220,11 +218,8 @@ export function Dashboard({ docs, onPickDoc, onPin, onUpload, onShowKbd, sidebar
               <div style={{ fontFamily: '"Instrument Serif", serif', fontSize: 44, letterSpacing: '-0.02em', color: 'var(--ink)', lineHeight: 1.05 }}>
                 Your library
               </div>
-              <div style={{ fontSize: 14, color: 'var(--ink-3)', marginTop: 6 }}>
-                {docs.length} document{docs.length === 1 ? '' : 's'} · {docs.reduce((s, d) => s + d.chunks, 0).toLocaleString()} chunks indexed
-              </div>
             </div>
-            <Btn variant="soft" icon={<IMessage size={14}/>} onClick={() => onNav('chat-all')} size="sm">
+            <Btn variant="soft" icon={<IMessage size={14} />} onClick={() => onNav('chat-all')} size="sm">
               Chat across all docs
             </Btn>
           </div>
@@ -236,23 +231,23 @@ export function Dashboard({ docs, onPickDoc, onPin, onUpload, onShowKbd, sidebar
           )}
 
           <div style={{ marginBottom: 32 }}>
-            <DropZone onDrop={handleUpload} uploading={uploading}/>
+            <DropZone onDrop={handleUpload} uploading={uploading} />
           </div>
 
           {pinned.length > 0 && (
             <>
-              <SectionHeader label="Pinned" icon={<IPinFilled size={12} stroke="var(--accent)"/>}/>
+              <SectionHeader label="Pinned" icon={<IPinFilled size={12} stroke="var(--accent)" />} />
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(208px, 1fr))', gap: 8 }}>
-                {pinned.map(d => <DocCard key={d.id} doc={d} onClick={() => onPickDoc(d.id)} onPin={onPin}/>)}
+                {pinned.map(d => <DocCard key={d.id} doc={d} onClick={() => onPickDoc(d.id)} onPin={onPin} />)}
               </div>
             </>
           )}
 
           {others.length > 0 && (
             <>
-              <SectionHeader label="All documents" style={{ marginTop: pinned.length ? 36 : 0 }}/>
+              <SectionHeader label="All documents" style={{ marginTop: pinned.length ? 36 : 0 }} />
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(208px, 1fr))', gap: 8 }}>
-                {others.map(d => <DocCard key={d.id} doc={d} onClick={() => onPickDoc(d.id)} onPin={onPin}/>)}
+                {others.map(d => <DocCard key={d.id} doc={d} onClick={() => onPickDoc(d.id)} onPin={onPin} />)}
               </div>
             </>
           )}

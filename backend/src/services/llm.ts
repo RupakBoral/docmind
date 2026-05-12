@@ -9,7 +9,7 @@ export class LLM {
 
     constructor() {
         this.KEY = CONFIG.LLM.API_KEY;
-        this.model = "llama-3.3-70b-versatile";
+        this.model = CONFIG.LLM.MODEL;
         this.ai = new Groq({ apiKey: this.KEY });
     }
 
@@ -37,7 +37,7 @@ export class LLM {
                 messages: [{
                     role: "system",
                     content: `Answer the user's question using ONLY the context below. 
-                    If the answer is not in the context, say "I don't know".
+                    If the answer is not in the context, say "I don't know". If the context is relatable, answer the user.
                     User's question:
                     ${prompt}
 

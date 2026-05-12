@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Doc, RecentQuery } from '../../data/sample';
+import type { Doc, RecentQuery } from '../../types';
 import { ILogo, IFile, IMessage, ILogout } from '../Icons';
 
 interface NavItemProps {
@@ -19,8 +19,8 @@ function NavItem({ icon, label, active, onClick }: NavItemProps) {
       color: active ? 'var(--ink)' : 'var(--ink-2)',
       fontWeight: active ? 500 : 400,
     }}
-    onMouseEnter={(e) => !active && ((e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)')}
-    onMouseLeave={(e) => !active && ((e.currentTarget as HTMLElement).style.background = 'transparent')}
+      onMouseEnter={(e) => !active && ((e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)')}
+      onMouseLeave={(e) => !active && ((e.currentTarget as HTMLElement).style.background = 'transparent')}
     >
       {icon}<span>{label}</span>
     </button>
@@ -57,13 +57,13 @@ export function Sidebar({ active, onNav, sidebarOn, recents, docs, onPickDoc, us
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
     }}>
       <div style={{ padding: '20px 20px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
-        <ILogo size={28}/>
+        <ILogo size={28} />
         <div style={{ fontFamily: '"Instrument Serif", serif', fontSize: 22, letterSpacing: '-0.01em', color: 'var(--ink)' }}>Docmind</div>
       </div>
 
       <nav style={{ padding: '6px 12px', display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <NavItem icon={<IFile size={16}/>} label="Documents" active={active === 'dashboard'} onClick={() => onNav('dashboard')}/>
-        <NavItem icon={<IMessage size={16}/>} label="Chat" active={active === 'chat'} onClick={() => onNav('chat-all')}/>
+        <NavItem icon={<IFile size={16} />} label="Documents" active={active === 'dashboard'} onClick={() => onNav('dashboard')} />
+        <NavItem icon={<IMessage size={16} />} label="Chat" active={active === 'chat'} onClick={() => onNav('chat-all')} />
       </nav>
 
       <div style={{ padding: '20px 20px 8px', fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--ink-4)' }}>
@@ -80,10 +80,10 @@ export function Sidebar({ active, onNav, sidebarOn, recents, docs, onPickDoc, us
             fontFamily: 'inherit', fontSize: 13, color: 'var(--ink-2)',
             borderRadius: 8, textAlign: 'left', width: '100%',
           }}
-          onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
-          onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+            onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
+            onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'transparent'}
           >
-            <div style={{ width: 6, height: 6, borderRadius: 2, background: d.accent, flexShrink: 0 }}/>
+            <div style={{ width: 6, height: 6, borderRadius: 2, background: d.accent, flexShrink: 0 }} />
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.title}</span>
           </button>
         ))}
@@ -101,8 +101,8 @@ export function Sidebar({ active, onNav, sidebarOn, recents, docs, onPickDoc, us
                 border: 0, background: 'transparent', cursor: 'pointer',
                 fontFamily: 'inherit', borderRadius: 8, width: '100%',
               }}
-              onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
-              onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+                onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
+                onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'transparent'}
               >
                 <div style={{
                   fontSize: 12.5, color: 'var(--ink-2)', lineHeight: 1.35,
@@ -116,7 +116,7 @@ export function Sidebar({ active, onNav, sidebarOn, recents, docs, onPickDoc, us
         </>
       )}
 
-      <div style={{ flex: 1 }}/>
+      <div style={{ flex: 1 }} />
 
       <div style={{ padding: 12, borderTop: '1px solid var(--line)', display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{
@@ -137,10 +137,10 @@ export function Sidebar({ active, onNav, sidebarOn, recents, docs, onPickDoc, us
             color: 'var(--ink-4)', cursor: 'pointer', borderRadius: 8,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
-          onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
-          onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+            onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'}
+            onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'transparent'}
           >
-            <ILogout size={15}/>
+            <ILogout size={15} />
           </button>
         )}
       </div>

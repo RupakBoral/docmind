@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { fileRouter } from "./router/ingest";
-import { retrievalRouter } from "./router/query";
+import { coreRouter } from "./router/core";
 import { userRouter } from "./router/user";
 import { accountRouter } from "./router/account";
 import { authRouter } from "./router/auth";
@@ -13,5 +12,4 @@ router.use('/auth', authRouter);
 router.use('/user', userRouter);
 
 router.use('/account', authenticate, accountRouter);
-router.use('', authenticate, fileRouter);
-router.use('', authenticate, retrievalRouter);
+router.use('/account', authenticate, coreRouter);
