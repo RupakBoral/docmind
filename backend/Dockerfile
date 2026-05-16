@@ -13,14 +13,20 @@ RUN npx prisma generate
 
 RUN npm run build
 
+
 # Stage 2: Production
 FROM node:22-alpine
 
 WORKDIR /app
 
+RUN npm install -g pm2
+
 COPY --from=builder /app/dist ./dist
+
 COPY --from=builder /app/node_modules ./node_modules
+
 COPY --from=builder /app/prisma ./prisma
+
 COPY prisma.config.ts ./prisma.config.ts
 
-CMD ["node", "dist/src/index.js"]
+CMD ["pm2-runtime", "dist/src/index.js"]

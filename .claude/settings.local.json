@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($file = \"C:\\\\Users\\\\parsh\\\\.claude\\\\projects\\\\C--Users-parsh-Documents-ProjectX-Docmind-Docmind\\\\cb8ff26f-88d5-4cb5-b300-ff74ad8ff9c3\\\\tool-results\\\\webfetch-1778385171168-ymnx3x.bin\"; $bytes = [System.IO.File]::ReadAllBytes\\($file\\); $ms = New-Object System.IO.MemoryStream\\(,$bytes\\); $gz = New-Object System.IO.Compression.GZipStream\\($ms, [System.IO.Compression.CompressionMode]::Decompress\\); $sr = New-Object System.IO.StreamReader\\($gz\\); $content = $sr.ReadToEnd\\(\\); $outPath = \"C:\\\\Users\\\\parsh\\\\AppData\\\\Local\\\\Temp\\\\design_decompressed.html\"; [System.IO.File]::WriteAllText\\($outPath, $content, [System.Text.Encoding]::UTF8\\); Write-Output \"Done. Length: $\\($content.Length\\)\"; $content.Substring\\(0, [Math]::Min\\(5000, $content.Length\\)\\))",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npx vite *)",
+      "Bash(dir C:\\\\Users\\\\parsh\\\\Documents\\\\ProjectX\\\\Docmind\\\\Docmind\\\\frontend\\\\src\\\\components\\\\dashboard *)",
+      "Bash(git filter-branch *)",
+      "Bash(git stash *)",
+      "Bash(FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch *)",
+      "Bash(git restore *)",
+      "Bash(xargs -I{} git update-ref -d {})",
+      "Bash(git reflog *)",
+      "Bash(git gc *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\parsh\\\\Documents\\\\ProjectX\\\\Docmind\\\\Docmind\" -Force)",
+      "Bash(Select-Object Name, FullName)",
+      "Bash(npx tsc *)",
+      "Bash(node_modules/.bin/tsc --noEmit)"
+    ]
+  }
+}

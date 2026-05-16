@@ -26,8 +26,7 @@ export const getAccountById = async (id: string) => {
                     email: true,
                     createdAt: true
                 }
-            },
-            documents: true
+            }
         }
     });
 };

@@ -46,38 +46,6 @@ Question → rewrite for better retrieval → embed → similarity search → to
 
 ---
 
-## Project Structure
-
-```
-docmind/
-├── src/
-│   ├── index.ts                      # Entry point
-│   ├── config/
-│   │   ├── constants.ts              # All env variable names
-│   │   └── db.ts                     # Prisma client
-│   ├── routes/
-│   │   ├── router.ts                 # Root router
-│   │   └── core/
-│   │       ├── ingest.ts             # POST /ingest
-│   │       └── query.ts              # POST /query
-│   ├── services/
-│   │   ├── pdf.ts                    # PDF text extraction
-│   │   ├── chunking.ts               # Split text into chunks
-│   │   ├── embedding.ts              # nomic-embed-text via Ollama
-│   │   ├── retrieval.ts              # pgvector similarity search
-│   │   └── llm.ts                    # Groq query rewriting + answer generation
-│   └── middlewares/
-│       └── upload.ts                 # Multer file upload
-├── prisma/
-│   └── schema.prisma                 # DB schema with pgvector
-├── docker-compose.yml
-├── .env.example
-├── tsconfig.json
-└── package.json
-```
-
----
-
 ## API
 
 ### Ingest a PDF
@@ -147,38 +115,48 @@ POSTGRES_USER=username
 POSTGRES_PASSWORD=password
 DATABASE_URL=postgresql://username:password@postgres:5432/your_db
 
-# Google Groq
+# Groq
 GROQ_API_KEY=your_groq_api_key
+
+# OLLAMA HOST
+OLLAMA_HOST=http://host.docker.internal:11434
+
+# JWT
+JWT_SECRET=jwt_secret
+
+# chunk size & overlap size for chunking
+CHUNK_SIZE=300
+OVERLAP=100
 ```
 
 ---
-
-## Running Locally
 
 ### Prerequisites
 - Docker + Docker Compose
 - Ollama (https://docs.ollama.com/linux)
 - Groq API
 
-### Start
+### Start the project
 
 ```bash
 # clone the repo
 git clone https://github.com/RupakBoral/Docmind.git
-cd docmind/backend
 
 # copy env
 cp .env.example .env
 # add your API KEYs and other details
 
-# start psql services
+# build the frontend
+cd docmind/frontend
+npm run build
+
+# start all services (frontend, nginx, backend, db, ollama)
 docker-compose up -d --build
 
 # Apply Prisma schema to Database (first time only)
 docker exec -it docmind-app npx prisma db push
 
 # Pull the embedding model (274 MB model, first time only)
-
 docker exec -it docmind-ollama ollama pull nomic-embed-text
 ```
 
@@ -189,7 +167,13 @@ docker ps
 ```
 
 
-### Stop
+### Check container logs
+```
+docker logs <container_name>
+```
+
+
+### Stop services
 ```
 docker compose down
 ```
@@ -202,6 +186,7 @@ docker compose down
 app       → Node.js Express API
 postgres  → PostgreSQL with pgvector extension
 ollama    → Local embedding model (nomic-embed-text)
+nginx     → Nginx as a reverse proxy, load balancer
 ```
 
 ---
@@ -214,9 +199,7 @@ ollama    → Local embedding model (nomic-embed-text)
 | Text chunking with overlap | chunking.ts |
 | Local embeddings (nomic-embed-text) | embedding.ts |
 | pgvector cosine similarity search | retrieval.ts |
-| Query rewriting for better retrieval | llm.ts |
-| Prompt engineering with context | llm.ts |
-| Prisma with raw SQL for vector ops | retrieval.ts |
+| Query rewriting and prompting with context | llm.ts |
 
 ---
 

@@ -8,13 +8,27 @@ import { router } from './router';
 
 const app = express();
 
+app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    const allowed = ['http://localhost:5173'];
+    if (origin && allowed.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+    }
+    if (req.method === 'OPTIONS') { res.sendStatus(204); return; }
+    next();
+});
+
 app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(express.json());
 
 app.get('/', (_req: Request, res: Response) => {
-    res.status(200).json({ message: "Server is running fine" });
-})
+    res.status(200).json({ message: "Server is running fine 🥸" });
+});
+
 app.use('/api/v1', router);
 
 app.listen(CONFIG.SERVER.PORT, async () => {

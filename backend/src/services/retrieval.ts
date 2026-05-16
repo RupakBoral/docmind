@@ -1,6 +1,7 @@
 import { prisma } from "../config/db";
 
 export interface RetrieveChunks {
+    document_id: string;
     content: string;
     page: number;
     similarity: number;
@@ -14,7 +15,7 @@ export const retrieve = async (account_id: string, vector_string: string, doc_id
 
         const chunks: Array<RetrieveChunks> = doc_id
             ? await prisma.$queryRaw`
-                SELECT ch.content, ch.page,
+                SELECT ch.document_id, ch.content, ch.page,
                 1 - (embedding <=> ${vector_string}::vector) as similarity
                 FROM account AS acc
                 JOIN document AS doc
@@ -22,10 +23,10 @@ export const retrieve = async (account_id: string, vector_string: string, doc_id
                 JOIN "chunk" AS ch
                 ON ch.document_id = ${doc_id}
                 ORDER BY similarity DESC
-                LIMIT 5
+                LIMIT 3
                 `
             : await prisma.$queryRaw`
-                SELECT ch.content, ch.page,
+                SELECT ch.document_id, ch.content, ch.page,
                 1 - (embedding <=> ${vector_string}::vector) as similarity
                 FROM account AS acc
                 JOIN document AS doc
@@ -33,7 +34,7 @@ export const retrieve = async (account_id: string, vector_string: string, doc_id
                 JOIN "chunk" AS ch
                 ON ch.document_id = doc.id
                 ORDER BY similarity DESC
-                LIMIT 5
+                LIMIT 3
             `;
 
         return chunks;
